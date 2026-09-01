@@ -1,0 +1,42 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyds9"
+dynamic = ["readme", "version"]
+description = "Python connection to ds9 via XPA"
+requires-python = ">=3.10"
+license = { text = "BSD" }
+authors = [
+  { name = "Bill Joye and Eric Mandel", email = "saord@cfa.harvard.edu" },
+]
+urls = { Homepage = "https://github.com/ericmandel/pyds9" }
+dependencies = [
+  "astropy>=5.0",
+  "numpy>=1.20",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=7.0",
+  "pytest-cov",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md"], content-type = "text/markdown" }
+version = { attr = "pyds9.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["pyds9", "pyds9.*"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra"

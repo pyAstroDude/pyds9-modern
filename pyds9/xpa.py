@@ -10,26 +10,48 @@ import ctypes
 import ctypes.util
 
 
-# look for the shared library in sys.path
+# look for the shared library in the source tree or on the system library path
+# The modernized package expects a system-installed XPA runtime, but we keep a
+# source-tree fallback for editable installs and local development.
 def _find_shlib(_libbase):
-
     dir_ = os.path.dirname(__file__)
-    libxpa = glob.glob(os.path.join(dir_, "libxpa*so*"))
-    if libxpa:
-        return libxpa[0]
-    else:
-        return None
+    search_patterns = [
+        os.path.join(dir_, f"lib{_libbase}*.so*"),
+        os.path.join(dir_, f"lib{_libbase}*.dylib*"),
+        os.path.join(dir_, f"{_libbase}*.so*"),
+        os.path.join(dir_, f"{_libbase}*.dylib*"),
+    ]
+
+    for pattern in search_patterns:
+        matches = glob.glob(pattern)
+        if matches:
+            return matches[0]
+
+    system_lib = ctypes.util.find_library(_libbase)
+    if system_lib:
+        return system_lib
+
+    return None
 
 _libpath = _find_shlib('xpa')
 if _libpath:
-    libxpa = ctypes.cdll.LoadLibrary(_libpath)
+    try:
+        libxpa = ctypes.cdll.LoadLibrary(_libpath)
+    except OSError as exc:
+        raise ImportError(
+            "XPA shared library was found but could not be loaded. "
+            "Install the XPA runtime and ensure libxpa is available on your library path."
+        ) from exc
     _ulist = platform.uname()
     if ((_ulist[0] == 'Windows') or ((_ulist[0]).find('CYGWIN') != -1)):
         libc = ctypes.cdll.msvcrt
     else:
         libc = ctypes.cdll.LoadLibrary(None)
 else:
-    raise ImportError("can't find XPA shared library")
+    raise ImportError(
+        "can't find XPA shared library. Install the XPA runtime and DS9 "
+        "system packages, then ensure libxpa is on the library path."
+    )
 
 # factory routine returning pointer to byte array
 c_byte_p = ctypes.POINTER(ctypes.c_byte)

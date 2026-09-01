@@ -1,8 +1,10 @@
 from collections import Counter
 import contextlib
-import random
 import subprocess as sp
+import sys
 import time
+import uuid
+import warnings
 
 from astropy.io import fits
 import numpy as np
@@ -34,17 +36,31 @@ def run_ds9s():
     @contextlib.contextmanager
     def _run_ds9s(*names):
         processes = []
-        for name in names:
-            cmd = ['ds9', '-title', name]
-            processes.append(sp.Popen(cmd))
-        # wait for all the ds9 to come alive
-        while True:
-            targets = pyds9.ds9_targets()
-            if targets and len(targets) == len(processes):
-                break
-            time.sleep(0.1)
-
         try:
+            expected_counts = Counter()
+            for name in names:
+                cmd = ['ds9', '-samp', 'no', '-title', name]
+                process = sp.Popen(cmd)
+                processes.append(process)
+                expected_counts[name] += 1
+                deadline = time.monotonic() + 20
+                while time.monotonic() < deadline:
+                    if process.poll() is not None:
+                        raise RuntimeError(
+                            'DS9 exited before registering with XPA')
+                    targets = pyds9.ds9_targets('DS9:' + name) or []
+                    if len(targets) >= expected_counts[name]:
+                        target_id = targets[-1].split(None, 1)[1]
+                        try:
+                            pyds9.DS9(target_id).set('zoom to fit')
+                        except ValueError:
+                            pass
+                        else:
+                            break
+                    time.sleep(0.1)
+                else:
+                    raise RuntimeError(
+                        'Timed out waiting for DS9 to register with XPA')
             yield
         finally:
             errors = []
@@ -54,8 +70,8 @@ def run_ds9s():
                     p.kill()
                     p.communicate()
                 elif returncode != 0:
-                    errors.append([cmd, returncode])
-            if errors:
+                    errors.append([p.args, returncode])
+            if errors and sys.exc_info()[0] is None:
                 msg = 'Command {} failed with error {}.'
                 msgs = [msg.format(' '.join(e[0]), e[1]) for e in errors]
                 raise RuntimeError('\n'.join(msgs))
@@ -66,7 +82,7 @@ def run_ds9s():
 @pytest.fixture
 def ds9_title(run_ds9s):
     '''Start a ds9 instance in a subprocess and returns its title'''
-    name = 'test.{}'.format(random.randint(0, 10000))
+    name = 'pyds9-test-{}'.format(uuid.uuid4().hex[:8])
 
     with run_ds9s(name):
         yield name
@@ -75,7 +91,7 @@ def ds9_title(run_ds9s):
 @pytest.fixture
 def ds9_obj(ds9_title):
     '''returns the DS9 instance for ``ds9_title``'''
-    return pyds9.ds9_openlist(target='*' + ds9_title + '*')[0]
+    return pyds9.ds9_openlist(target='DS9:' + ds9_title)[0]
 
 
 @type_mapping
@@ -111,35 +127,38 @@ def test_np2bp_fail():
 
 
 def test_ds9_targets_empty():
-    '''If no ds9 instance is running, ds9_targets returns None'''
-    targets = pyds9.ds9_targets()
+    '''ds9_targets returns None when a target does not exist'''
+    targets = pyds9.ds9_targets('DS9:pyds9-test-missing-{}'.format(
+        uuid.uuid4().hex))
     assert targets is None
 
 
 def test_ds9_targets(run_ds9s):
     '''ds9_targets returns open ds9 names'''
-    names = ['test1', 'test1', 'test2']
+    prefix = 'pyds9-test-{}-'.format(uuid.uuid4().hex[:8])
+    names = [prefix + 'one', prefix + 'one', prefix + 'two']
     with run_ds9s(*names):
-        targets = pyds9.ds9_targets()
+        targets = pyds9.ds9_targets('DS9:' + prefix + '*')
 
     assert len(targets) == len(names)
-    names = Counter(names)
-    for name, count in names.items():
-        assert sum(name in t for t in targets) == count
+    target_names = Counter(target.split(None, 1)[0][4:] for target in targets)
+    assert target_names == Counter(names)
 
 
 def test_ds9_openlist_empty():
-    '''If no ds9 instance is running, ds9_openlist raises an exception'''
+    '''ds9_openlist raises an exception when a target does not exist'''
+    target = 'DS9:pyds9-test-missing-{}'.format(uuid.uuid4().hex)
     with pytest.raises(ValueError,
-                       match='no active ds9 found for target: DS9:*'):
-        pyds9.ds9_openlist()
+                       match='no active ds9 found for target'):
+        pyds9.ds9_openlist(target=target)
 
 
 def test_ds9_openlist(run_ds9s):
     '''ds9_openlist returns running ds9 instances'''
-    names = ['test4', 'test5', 'test6']
+    prefix = 'pyds9-test-{}-'.format(uuid.uuid4().hex[:8])
+    names = [prefix + 'one', prefix + 'two', prefix + 'three']
     with run_ds9s(*names):
-        ds9s = pyds9.ds9_openlist()
+        ds9s = pyds9.ds9_openlist(target='DS9:' + prefix + '*')
 
     assert len(ds9s) == len(names)
 
@@ -167,7 +186,7 @@ def test_ds9_get_fits(ds9_obj, test_fits):
 
     ds9_obj.set('file {}'.format(test_fits))
 
-    with pytest.warns(None) as warn_records:
+    with warnings.catch_warnings(record=True) as warn_records:
         hdul_from_ds9 = ds9_obj.get_fits()
 
     assert isinstance(hdul_from_ds9, fits.HDUList)
@@ -190,9 +209,9 @@ def test_ds9_set_fits_fail(ds9_obj):
 def test_ds9_set_fits(tmpdir, ds9_obj, test_fits):
     '''Set the astropy fits'''
 
-    with fits.open(test_fits.strpath) as hdul,\
-            pytest.warns(None) as warn_records:
-        success = ds9_obj.set_fits(hdul)
+    with fits.open(test_fits.strpath) as hdul:
+        with warnings.catch_warnings(record=True) as warn_records:
+            success = ds9_obj.set_fits(hdul)
 
     assert success == 1
     assert len(warn_records) == 0
@@ -216,7 +235,7 @@ def test_get_arr2np(ds9_obj, test_data_dir, fits_name):
     fits_file = test_data_dir.join(fits_name)
     ds9_obj.set('file {}'.format(fits_file))
 
-    with pytest.warns(None) as warn_records:
+    with warnings.catch_warnings(record=True) as warn_records:
         arr = ds9_obj.get_arr2np()
 
     assert len(warn_records) == 0
@@ -282,7 +301,7 @@ def test_ds9_extra_prop(ds9_title):
         def frame(self, value):
             self.set("frame {}".format(value))
 
-    ds9 = DS9_(target='*' + ds9_title + '*')
+    ds9 = DS9_(target='DS9:' + ds9_title)
     a = ds9.frame
     ds9.frame = int(a) + 1
 

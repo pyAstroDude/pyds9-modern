@@ -645,12 +645,9 @@ class DS9(object):
         """
         self._selftest()
         if type(buf) == numpy.ndarray:
-                s = buf.tostring()
-        elif type(buf) == array.array:
-            try:  # Python >= 3.2
                 s = buf.tobytes()
-            except AttributeError:
-                s = buf.tostring()
+        elif type(buf) == array.array:
+            s = buf.tobytes()
         else:
             s = string_to_bytes(buf)
 
@@ -870,7 +867,7 @@ class DS9(object):
         if not narr.flags['C_CONTIGUOUS']:
             narr = numpy.ascontiguousarray(narr)
         bp = _np2bp(narr.dtype)
-        buf = narr.tostring('C')
+        buf = narr.tobytes('C')
         blen = len(buf)
 
         # note that this needs the "endian=" part because sometimes it's
