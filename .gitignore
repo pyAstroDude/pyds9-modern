@@ -29,6 +29,12 @@ docs/_build
 # Pycharm editor project files
 .idea
 
+# VS Code workspace metadata
+.code-*
+
+# Local AI handoff
+.ai_adl.md
+
 # Packages/installer info
 *.egg
 *.egg-info

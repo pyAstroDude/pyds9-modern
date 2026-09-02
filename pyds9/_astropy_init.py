@@ -10,7 +10,7 @@ patterns still resolve cleanly while the modernization is taking place.
 __all__ = ["__version__", "__githash__", "_ASTROPY_SETUP_"]
 
 _ASTROPY_SETUP_ = False
-__version__ = "1.9.dev0"
+__version__ = "2.0.0"
 __githash__ = ""
 
 
