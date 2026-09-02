@@ -23,7 +23,7 @@ setup(
         "pyds9": ["data/*"],
         "pyds9.tests": ["data/*.fits"],
     },
-    install_requires=["astropy", "numpy"],
+    install_requires=["astropy>=5.0", "numpy>=1.20"],
     extras_require={
         "test": ["pytest", "pytest-cov"],
     },

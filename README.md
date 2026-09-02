@@ -41,34 +41,11 @@ Added or updated:
 The previous project documentation is preserved in
 [`README-legacy.md`](README-legacy.md).
 
-## Prerequisites
-
-This package expects a system-installed ``ds9`` and the native XPA runtime to be
-available before using the Python client.
-
-On macOS, install XPA into the same conda environment where you will install and
-run ``pyds9``. For example, to use an environment named ``pyds9-modern``:
-
-    conda activate pyds9-modern
-    conda install -c conda-forge xpa
-
-Then install ``pyds9`` in that activated environment. Confirm that XPA is
-available before importing the package:
-
-    python - <<'PY'
-    import ctypes.util
-    print("XPA:", ctypes.util.find_library("xpa"))
-    PY
-
-If this prints a path or library name, the XPA library is available. If it prints
-``None``, verify that the intended conda environment is activated and rerun the
-``conda install`` command above.
-
 ## Requirements
 
-Before installing this package, install Python 3.10 or newer, [SAOImage
-DS9](https://ds9.si.edu/), and the native XPA runtime in the same environment as
-Python.
+The package requires Python 3.10 or newer and [SAOImage
+DS9](https://ds9.si.edu/). The native XPA runtime is installed automatically by
+the recommended conda environment below.
 
 The recommended conda setup installs all runtime, test, build, and
 documentation dependencies from [`environment.yml`](environment.yml):
@@ -80,26 +57,14 @@ conda env create -f environment.yml
 conda activate pyds9-modern
 ```
 
-The environment file installs the package from the local checkout. To install
-the package manually in an existing environment, first install XPA:
-
-```bash
-conda install -c conda-forge xpa
-```
-
-Then install the package from the checkout or directly from GitHub as described
-below. Confirm that XPA is visible to the active Python environment:
-
-```bash
-python -c "import ctypes.util; print(ctypes.util.find_library('xpa'))"
-```
-
-This should print an XPA library path or name rather than `None`.
+The environment file installs the package from the local checkout, along with
+the native XPA runtime. DS9 itself must be installed separately.
 
 ## Installation from GitHub
 
 This project is intentionally installed directly from the non-PyPI GitHub
-repository:
+repository. This manual path assumes that Python 3.10 or newer, the native XPA
+runtime, and a system installation of DS9 are already available:
 
 ```bash
 git clone https://github.com/pyAstroDude/pyds9-modern.git

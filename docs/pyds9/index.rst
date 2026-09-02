@@ -12,14 +12,16 @@ communicate with ds9. It supports communication with all of ds9's XPA access
 points. See https://ds9.si.edu/doc/ref/xpa.html for more information on DS9's access
 points.
 
-Install the package from the independent GitHub repository after installing
-Python 3.10 or newer, DS9, and the native XPA runtime::
+The recommended setup uses the repository's conda environment file. Install
+DS9 separately, then create the environment from a checkout::
 
     git clone https://github.com/pyAstroDude/pyds9-modern.git
     cd pyds9-modern
-    python -m pip install .
+   conda env create -f environment.yml
+   conda activate pyds9-modern
 
-The package uses the system XPA runtime; it does not build or bundle XPA.
+The environment file installs Python, the native XPA runtime, and the package.
+The package uses that system XPA runtime; it does not build or bundle XPA.
 
 The DS9 Class
 -------------
