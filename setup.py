@@ -16,7 +16,7 @@ setup(
     author="Bill Joye and Eric Mandel",
     author_email="saord@cfa.harvard.edu",
     license="BSD",
-    url="https://github.com/ericmandel/pyds9",
+    url="https://github.com/pyAstroDude/pyds9-modern",
     packages=find_packages(include=["pyds9", "pyds9.*"]),
     include_package_data=True,
     package_data={
@@ -25,7 +25,7 @@ setup(
     },
     install_requires=["astropy", "numpy"],
     extras_require={
-        "test": ["pytest"],
+        "test": ["pytest", "pytest-cov"],
     },
     python_requires=">=3.10",
     zip_safe=False,

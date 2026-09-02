@@ -14,7 +14,7 @@ license = { text = "BSD" }
 authors = [
   { name = "Bill Joye and Eric Mandel", email = "saord@cfa.harvard.edu" },
 ]
-urls = { Homepage = "https://github.com/ericmandel/pyds9" }
+urls = { Homepage = "https://github.com/pyAstroDude/pyds9-modern" }
 dependencies = [
   "astropy>=5.0",
   "numpy>=1.20",

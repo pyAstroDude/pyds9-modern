@@ -1,10 +1,45 @@
-# Python connection to ds9 via XPA
+# pyds9-modern
 
-The [XPA messaging system](https://github.com/ericmandel/xpa) provides
-seamless communication between many kinds of Unix programs, including Tcl/Tk
-programs such as ds9. The ``pyds9`` module uses a Python interface to XPA to
-communicate with ds9. It supports communication with all of ds9's XPA access
-points.
+An independently maintained modernized version of the legacy
+[pyds9](https://github.com/ericmandel/pyds9) project: a Python interface for
+communicating with [SAOImage DS9](https://ds9.si.edu/) through the
+[XPA messaging system](https://github.com/ericmandel/xpa).
+
+This repository began as a clone of the original pyds9 source tree and was
+refactored to use modern Python packaging and maintenance practices. The
+runtime import remains `pyds9` so existing Python code can continue to use the
+same public API.
+
+## Project status
+
+- Independent repository: `https://github.com/pyAstroDude/pyds9-modern`
+- Current release: `2.0.0`
+- Supported Python: `3.10` and newer
+- Installation source: GitHub only; this project is not currently published on PyPI
+
+## What changed
+
+The modernization removed the obsolete bundled build system and replaced it
+with a pip-first project configuration.
+
+Removed:
+
+- Bundled XPA C source and build files
+- The legacy `astropy_helpers` and `ah_bootstrap.py` machinery
+- Obsolete Travis CI and AppVeyor configuration
+- Unused package and test configuration placeholders
+
+Added or updated:
+
+- Standard `pyproject.toml` build configuration
+- Explicit Python `>=3.10` requirement
+- System XPA runtime discovery and installation guidance
+- Updated pytest and Sphinx configuration
+- Reliable DS9/XPA integration-test startup
+- Documentation for installing directly from this GitHub repository
+
+The previous project documentation is preserved in
+[`README-legacy.md`](README-legacy.md).
 
 ## Prerequisites
 
@@ -29,34 +64,80 @@ If this prints a path or library name, the XPA library is available. If it print
 ``None``, verify that the intended conda environment is activated and rerun the
 ``conda install`` command above.
 
-## Installation
+## Requirements
 
-Install from PyPI:
+Before installing this package, install Python 3.10 or newer, [SAOImage
+DS9](https://ds9.si.edu/), and the native XPA runtime in the same environment as
+Python.
 
-    pip install pyds9
+The recommended conda setup installs all runtime, test, build, and
+documentation dependencies from [`environment.yml`](environment.yml):
 
-For a local checkout:
+```bash
+git clone https://github.com/pyAstroDude/pyds9-modern.git
+cd pyds9-modern
+conda env create -f environment.yml
+conda activate pyds9-modern
+```
 
-    git clone https://github.com/ericmandel/pyds9.git
-    cd pyds9
-    python -m pip install -e .
+The environment file installs the package from the local checkout. To install
+the package manually in an existing environment, first install XPA:
+
+```bash
+conda install -c conda-forge xpa
+```
+
+Then install the package from the checkout or directly from GitHub as described
+below. Confirm that XPA is visible to the active Python environment:
+
+```bash
+python -c "import ctypes.util; print(ctypes.util.find_library('xpa'))"
+```
+
+This should print an XPA library path or name rather than `None`.
+
+## Installation from GitHub
+
+This project is intentionally installed directly from the non-PyPI GitHub
+repository:
+
+```bash
+git clone https://github.com/pyAstroDude/pyds9-modern.git
+cd pyds9-modern
+python -m pip install .
+```
+
+To install the current `master` branch without cloning first:
+
+```bash
+python -m pip install \
+    git+https://github.com/pyAstroDude/pyds9-modern.git
+```
+
+For development and tests:
+
+```bash
+python -m pip install ".[test]"
+python -m pytest -q
+```
 
 ## Usage
 
-    >>> import pyds9
-    >>> print(pyds9.ds9_targets())
-    >>> d = pyds9.DS9()  # open a new ds9 window or connect to an existing one
-    >>> d.set("file /path/to/fits")  # send the file to the open ds9 session
+```python
+import pyds9
 
-## Notes
+print(pyds9.ds9_targets())
+d = pyds9.DS9()
+d.set("file /path/to/file.fits")
+```
 
-- The public Python API remains the compatibility contract for the project.
-- The package is being modernized toward a pip-first install flow.
-- During the migration period, a legacy compatibility import path remains in place.
-- If DS9 or XPA is not installed and visible on your system, the package will
-  fail with a clear runtime error rather than a confusing build-time issue.
+The DS9 application must be installed and available for the integration
+operations to work.
 
-To report a bug, ask for a new feature, or request support, please contact us at
-https://github.com/ericmandel/pyds9/issues
+## Development
 
-The PyDS9 team
+The test suite includes conversion tests and DS9/XPA integration tests. The
+validated baseline for version `2.0.0` is **39 passing tests**.
+
+Issues and contributions can be opened at
+https://github.com/pyAstroDude/pyds9-modern/issues.
