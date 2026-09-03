@@ -24,9 +24,21 @@ with a pip-first project configuration.
 
 Removed:
 
+- Bundled XPA C source and native build files
+- Legacy `astropy_helpers` and `ah_bootstrap.py` build machinery
+- Obsolete Travis CI and AppVeyor configuration
+- Unused package and test configuration placeholders
 
 Added or updated:
 
+- Standard `pyproject.toml` pip build configuration
+- Explicit Python `>=3.10` requirement
+- System XPA runtime discovery and conda installation guidance
+- GitHub-based `environment.yml` for runtime, testing, and documentation tools
+- Updated pytest and Sphinx configuration
+- Reliable DS9/XPA integration-test startup
+- Modern Python compatibility for readonly-property tests
+- Documentation for installing directly from the GitHub repository
 
 The previous project documentation is preserved in
 [`README-legacy.md`](README-legacy.md).
