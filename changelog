@@ -1,5 +1,10 @@
 Changelog for pyds9
 
+version 2.0.1   September 3, 2026
+		Fix compatibility with modern Python readonly-property error messages.
+		Install the package from GitHub through the conda environment file.
+		Update documentation and repository metadata for pyds9-modern.
+
 version 2.0.0   September 1, 2026
 		Modernize packaging for Python 3.10+.
 		pyds9 now requires Python 3.10 or later.

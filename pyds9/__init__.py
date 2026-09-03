@@ -12,7 +12,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from .pyds9 import *
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 # Temporary compatibility bridge for one release cycle while the project
 # moves to the modern package layout.

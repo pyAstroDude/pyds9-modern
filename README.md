@@ -13,7 +13,7 @@ same public API.
 ## Project status
 
 - Independent repository: `https://github.com/pyAstroDude/pyds9-modern`
-- Current release: `2.0.0`
+- Current release: `2.0.1`
 - Supported Python: `3.10` and newer
 - Installation source: GitHub only; this project is not currently published on PyPI
 
@@ -24,19 +24,9 @@ with a pip-first project configuration.
 
 Removed:
 
-- Bundled XPA C source and build files
-- The legacy `astropy_helpers` and `ah_bootstrap.py` machinery
-- Obsolete Travis CI and AppVeyor configuration
-- Unused package and test configuration placeholders
 
 Added or updated:
 
-- Standard `pyproject.toml` build configuration
-- Explicit Python `>=3.10` requirement
-- System XPA runtime discovery and installation guidance
-- Updated pytest and Sphinx configuration
-- Reliable DS9/XPA integration-test startup
-- Documentation for installing directly from this GitHub repository
 
 The previous project documentation is preserved in
 [`README-legacy.md`](README-legacy.md).
@@ -102,7 +92,7 @@ operations to work.
 ## Development
 
 The test suite includes conversion tests and DS9/XPA integration tests. The
-validated baseline for version `2.0.0` is **39 passing tests**.
+validated baseline for version `2.0.1` is **39 passing tests**.
 
 Issues and contributions can be opened at
 https://github.com/pyAstroDude/pyds9-modern/issues.
