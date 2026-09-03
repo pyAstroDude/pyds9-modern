@@ -13,4 +13,4 @@ dependencies:
   - wheel
   - sphinx
   - pip:
-      - .
+      - git+https://github.com/pyAstroDude/pyds9-modern.git

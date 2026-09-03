@@ -285,7 +285,7 @@ def test_ds9_readonly_props_fail(ds9_obj, attr):
 
     # We can not set them
     with pytest.raises(AttributeError,
-                       match="can't set attribute"):
+                       match="can't set attribute|has no setter"):
         setattr(ds9_obj, attr, 41)
 
 

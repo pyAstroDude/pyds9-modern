@@ -57,8 +57,8 @@ conda env create -f environment.yml
 conda activate pyds9-modern
 ```
 
-The environment file installs the package from the local checkout, along with
-the native XPA runtime. DS9 itself must be installed separately.
+The environment file installs the package directly from GitHub, along with the
+native XPA runtime. DS9 itself must be installed separately.
 
 ## Installation from GitHub
 
